@@ -1,101 +1,109 @@
 import validator from "validator";
-import bcrypt from "bcrypt"
-import jwt from 'jsonwebtoken'
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import pool from "../config/mysql.js"; // Anslutning till MySQL
 
-import userModel from "../models/userModel.js";
+const createToken = (id, isAdmin = false) => {
+    return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET, { expiresIn: "1h" });
+};
 
-const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
-}
-
-// Route for user login
+// ✅ Route for user login (MySQL)
 const loginUser = async (req, res) => {
     try {
-
         const { email, password } = req.body;
 
-        const user = await userModel.findOne({ email });
+        const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
 
-        if (!user) {
-            return res.json({ success: false, message: "User doesn't exists" })
+        if (rows.length === 0) {
+            return res.json({ success: false, message: "User doesn't exist" });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password)
+        const user = rows[0];
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-
-            const token = createToken(user._id)
-            res.json({ success: true, token })
-
-        }
-        else {
-            res.json({ success: false, message: 'Invalid credentials' })
+            const token = createToken(user.id, user.isAdmin);
+            res.json({ success: true, token });
+        } else {
+            res.json({ success: false, message: "Invalid credentials" });
         }
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
-
+        res.json({ success: false, message: error.message });
     }
+};
 
-}
-
-// Route for user register
+// ✅ Route for user register (MySQL)
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        // checking user already exists or not
-        const exists = await userModel.findOne({ email });
-        if (exists) {
-            return res.json({ success: false, message: "User already exisits" })
+        const { name, email, password, isAdmin = false } = req.body;
+
+        // Kontrollera om e-post redan finns
+        const [exists] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+        if (exists.length > 0) {
+            return res.json({ success: false, message: "User already exists" });
         }
-        // validating email format & strong password
+
+        // Validera e-post och lösenord
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a Valid email" })
+            return res.json({ success: false, message: "Please enter a valid email" });
         }
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+            return res.json({ success: false, message: "Please enter a strong password" });
         }
 
-        // hashing user password
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
+        // Hasha lösenordet
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newUser = new userModel({
-            name,
-            email,
-            password: hashedPassword
-        })
+        // Spara användare i MySQL
+        await pool.query("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [name, email, hashedPassword, isAdmin]);
 
-        const user = await newUser.save()
-
-        const token = createToken(user._id)
-
-        res.json({ success: true, token })
-
+        res.json({ success: true, message: "User registered successfully" });
 
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
-    // res.json({ msg: "Register API Working" })
+};
 
-}
-
-// Route for admin login
+// ✅ Route for admin login (MySQL)
 const adminLogin = async (req, res) => {
     try {
-        const { email, password } = req.body
-        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign(email + password, process.env.JWT_SECRET);
-            res.json({ success: true, token })
-        } else {
-            res.json({ success: false, message: "Invalid credentials" })
+        const { email, password } = req.body;
+
+        // Hämta admin från databasen
+        const [admin] = await pool.query("SELECT * FROM users WHERE email = ? AND isAdmin = true", [email]);
+
+        if (admin.length === 0) {
+            return res.json({ success: false, message: "Admin not found" });
         }
+
+        // Kontrollera lösenord
+        const isMatch = await bcrypt.compare(password, admin[0].password);
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid credentials" });
+        }
+
+        // Generera JWT-token
+        const token = createToken(admin[0].id, true);
+        res.json({ success: true, token });
+
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
+};
 
-}
+// ✅ Route for fetching all users (MySQL)
+const getAllUsers = async (req, res) => {
+    try {
+        const [users] = await pool.query("SELECT id, name, email, isAdmin FROM users");
+        res.json({ success: true, users });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Error fetching users", error: error.message });
+    }
+};
 
-export { loginUser, registerUser, adminLogin }
+export { loginUser, registerUser, adminLogin, getAllUsers };
