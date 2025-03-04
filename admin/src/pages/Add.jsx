@@ -96,20 +96,28 @@ const Add = ({ token }) => {
             <div className=' flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
 
                 <div>
-                    <p className='mb-2'>Product category</p>
+                    <p className='mb-2'>Product Region</p>
                     <select onChange={(e) => setCategory(e.target.value)} className=' w-full px-3 py-2'>
-                        <option value="Men">Men</option>
-                        <option value="Women">Women</option>
-                        <option value="Kids">Kids</option>
+                        <option value="Living Room">Living Room</option>
+                        <option value="Bedroom">Bedroom</option>
+                        <option value="Kitchen&Dining">Kitchen&Dining</option>
+                        <option value="Bathroom">Bathroom</option>
+                        <option value="Office">Office</option>
+                        <option value="Outdoor">Outdoor</option>
+                        <option value="Outdoor">Kid&Teens</option>
                     </select>
                 </div>
 
                 <div>
-                    <p className='mb-2'>Sub category</p>
+                    <p className='mb-2'>Sub category - Functional</p>
                     <select onChange={(e) => setSubCategory(e.target.value)} className=' w-full px-3 py-2'>
-                        <option value="Topwear">Topwear</option>
-                        <option value="Bottomwear">Bottomwear</option>
-                        <option value="Winterwear">Winterwear</option>
+                        <option value="Seating">Seating</option>
+                        <option value="Table">Table</option>
+                        <option value="Storage">Storage</option>
+                        <option value="Beds">Beds</option>
+                        <option value="Lighting">Lighting</option>
+                        <option value="Decoration">Decoration</option>
+                        <option value="Smart">Smart</option>
                     </select>
                 </div>
 
