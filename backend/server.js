@@ -1,33 +1,28 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './config/mongodb.js'
-import connectCloudinary from './config/cloudinary.js'
-import userRouter from './routes/userRoute.js'
-import productRouter from './routes/productRoute.js'
-import cartRouter from './routes/cartRoute.js'
-import orderRouter from './routes/orderRoute.js'
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import pool from './config/mysql.js';  // ✅ Correct MySQL import
+import connectCloudinary from './config/cloudinary.js';
+import userRouter from './routes/userRoute.js';
+import productRouter from './routes/productRoute.js';
 
 // App Config
-const app = express()
-const port = process.env.PORT || 4000
-connectDB()
-connectCloudinary()
+const app = express();
+const port = process.env.PORT || 4000;
 
-// middlewares
-app.use(express.json())
-app.use(cors())
+// Middlewares
+app.use(express.json());
+app.use(cors());
 
-// api endpoints
+// ✅ MySQL Connection Test (already handled in mysql.js)
 
-app.use('/api/user', userRouter)
-app.use('/api/product', productRouter)
-app.use('/api/cart', cartRouter)
-app.use('/api/order', orderRouter)
+// API Endpoints
+app.use('/api/users', userRouter);
+app.use('/api/product', productRouter);
 
 app.get('/', (req, res) => {
-    res.send("API Working")
-})
+    res.send("API Working with MySQL!");
+});
 
-app.listen(port, () => console.log('Server started on PORT: ' + port))
-
+// Start Server
+app.listen(port, () => console.log(`🚀 Server started on PORT: ${port}`));
