@@ -399,30 +399,6 @@ export const products = [
         bestseller: false
     },
     {
-        _id: "prod026",
-        name: "AI-Enabled Bookshelf",
-        description: "A bookshelf with AI-powered organization, voice search, and automatic book categorization.",
-        price: 899,
-        image: ["https://example.com/images/smart-bookshelf.jpg"],
-        category: "Living Room",
-        subCategory: "Smart",
-        sizes: ["M", "L"],
-        date: 1716634455555,
-        bestseller: false
-    },
-    {
-        _id: "prod027",
-        name: "Smart Kitchen Island",
-        description: "A high-tech kitchen island with a touch-screen display, recipe recommendations, and voice commands.",
-        price: 2799,
-        image: ["https://example.com/images/smart-kitchen-island.jpg"],
-        category: "Kitchen&Dining",
-        subCategory: "Smart",
-        sizes: ["L", "XL"],
-        date: 1716634455555,
-        bestseller: true
-    },
-    {
         _id: "prod028",
         name: "Interactive Kids Study Desk",
         description: "A smart study desk with an AI tutor, interactive learning features, and height adjustment.",
