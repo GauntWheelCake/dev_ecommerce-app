@@ -3,32 +3,53 @@ import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
 import CartTotal from '../components/CartTotal';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Cart = () => {
-
     const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
     const [cartData, setCartData] = useState([]);
+    const [subtotal, setSubtotal] = useState(0);
 
     useEffect(() => {
-
         if (products.length > 0) {
             const tempData = [];
+            let total = 0;
             for (const items in cartItems) {
                 for (const item in cartItems[items]) {
                     if (cartItems[items][item] > 0) {
-                        // add this item
+                        const product = products.find(p => p._id === items);
+                        if (product) {
+                            total += product.price * cartItems[items][item];
+                        }
                         tempData.push({
                             _id: items,
                             size: item,
                             quantity: cartItems[items][item]
-                        })
+                        });
                     }
                 }
             }
-            // console.log(tempData);
+            setSubtotal(total);
             setCartData(tempData);
         }
-    }, [cartItems, products])
+    }, [cartItems, products]);
+
+    const handleCheckout = () => {
+        if (subtotal === 0) return; // 若小计为 0，直接返回
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error("You need to login to proceed with payment", {
+                position: "top-center",
+                autoClose: 3000,
+            });
+            navigate('/login');
+            return;
+        }
+
+        navigate('/place-order'); // 只有当 token 存在且 subtotal > 0 时才能跳转
+    };
 
     return (
         <div className='border-t pt-14'>
@@ -51,8 +72,23 @@ const Cart = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <input onChange={(e) => (e.target.value === '' || e.target.value === '0' ? null : updateQuantity(item._id, item.size, Number(e.target.value)))} className='border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1' type="number" min={1} defaultValue={item.quantity} />
-                                <img onClick={() => updateQuantity(item._id, item.size, 0)} className='w-4 mr-4 sm:w-5 cursor-pointer' src={assets.bin_icon} alt="" />
+                                <input
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || value === '0') return;
+                                        updateQuantity(item._id, item.size, Number(value));
+                                    }}
+                                    className='border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1'
+                                    type="number"
+                                    min={1}
+                                    defaultValue={item.quantity}
+                                />
+                                <img
+                                    onClick={() => updateQuantity(item._id, item.size, 0)}
+                                    className='w-4 mr-4 sm:w-5 cursor-pointer'
+                                    src={assets.bin_icon}
+                                    alt=""
+                                />
                             </div>
                         )
                     })
@@ -63,13 +99,17 @@ const Cart = () => {
                 <div className='w-full sm:w-[450px]'>
                     <CartTotal />
                     <div className=' w-full text-end'>
-                        <button onClick={() => navigate('/place-order')} className='bg-black text-white text-sm my-8 px-8 py-3' >PROCEED TO CHECKOUT</button>
+                        <button
+                            onClick={handleCheckout}
+                            className={`bg-black text-white text-sm my-8 px-8 py-3 ${subtotal === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={subtotal === 0}>
+                            PROCEED TO CHECKOUT
+                        </button>
                     </div>
                 </div>
             </div>
-
         </div>
-    )
+    );
 }
 
-export default Cart
+export default Cart;
