@@ -24,18 +24,26 @@ const About = () => {
             </div>
             <div className='flex flex-col md:flex-row text-sm mb-20'>
                 <div className='border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5'>
-                    <b>Quality Assurance:</b>
-                    <p className='text-gray-600'>We xxx xxx xxx xxxxxx xxxxxxxxx xxxxxxxx.</p>
+                    <b>Quality You Can Trust</b>
+                    <p className='text-gray-600'>
+                        Every piece of furniture is crafted with premium materials and strict quality control, ensuring durability and timeless design.
+                    </p>
                 </div>
                 <div className='border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5'>
-                    <b>Convenience:</b>
-                    <p className='text-gray-600'>With our xxx xxx xxx xxxxxx xxxxxxxxx xxxxxxxx.</p>
+                    <b>Seamless Shopping Experience</b>
+                    <p className='text-gray-600'>
+                        Enjoy fast browsing, smart filters, and secure payments, making furniture shopping effortless and enjoyable.
+                    </p>
                 </div>
                 <div className='border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5'>
-                    <b>Exceptional Customer Service:</b>
-                    <p className='text-gray-600'>Our team of dedicated xxx xx xx </p>
+                    <b>Customer-Centric Support</b>
+                    <p className='text-gray-600'>
+                        Our friendly support team is always ready to assist you, from product inquiries to after-sales service.
+                    </p>
                 </div>
             </div>
+
+
             <NewsletterBox />
         </div>
 
